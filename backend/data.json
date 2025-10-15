@@ -1,5 +1,5 @@
 {
-  "doorIsClosed": false,
-  "boxInUse": false,
-  "pinCode": "6486"
+  "doorIsClosed": true,
+  "boxInUse": true,
+  "pinCode": "6175"
 }

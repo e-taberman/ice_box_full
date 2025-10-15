@@ -72,12 +72,13 @@ const AppInterface = ({
     return (
       <div style={{ border: "5px solid green" }}>
         <h2>AppInterface</h2>
-        <p>BOX IS FREE</p>
-
         {showPin ? (
-          <p>PIN code for opening the box: {pin}</p>
+          <p>Box locked! PIN code for opening the box: {pin}</p>
         ) : (
-          <button onClick={reserveBox}>Reserve box</button>
+          <>
+            <p>BOX IS FREE!</p>
+            <button onClick={reserveBox}>Reserve box</button>
+          </>
         )}
       </div>
     );
