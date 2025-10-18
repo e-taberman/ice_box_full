@@ -93,6 +93,7 @@ const MQTTClient = () => {
   const [boxInUse, setBoxInUse] = useState(false);
   const [data, setData] = useState([]);
   const [pin, setPin] = useState("0000");
+  const [lastError, setLastError] = useState("");
 
   const topic = "laatikko/1";
 
@@ -137,6 +138,7 @@ const MQTTClient = () => {
     mqttClient.on("error", (err) => {
       console.error("Connection error: ", err);
       setIsConnected(false);
+      setLastError(err?.message || err?.toString() || "Unknown error");
     });
 
     mqttClient.on("reconnect", () => {
@@ -185,14 +187,29 @@ const MQTTClient = () => {
       {/* <BoxSimulator boxInUse={boxInUse} doorIsClosed={doorIsClosed} /> */}
 
       <h2>MQTT test</h2>
-      <p>Host: test.mosquitto.org, port: 8081</p>
+      <div
+        style={{
+          background: "#eee",
+          padding: "0.5em",
+          marginBottom: "1em",
+          border: "1px solid #ccc",
+        }}
+      >
+        <strong>Broker URL:</strong> {brokerUrl}
+        <br />
+        <strong>Status:</strong>{" "}
+        {isConnected ? "Connection successful :)" : "Connection failed ;("}
+        {lastError && (
+          <>
+            <br />
+            <strong>Last error:</strong>{" "}
+            <span style={{ color: "red" }}>{lastError}</span>
+          </>
+        )}
+      </div>
       <h4>MQTT Komennot:</h4>
       <p>"close" = simuloi oven sulkemista</p>
       <p>"open" = simuloi oven avaamista</p>
-      <p>
-        Status:{" "}
-        {isConnected ? "Connection successful :)" : "Connection failed ;("}
-      </p>
       <div>
         <form onSubmit={sendMessage}>
           <input
