@@ -94,16 +94,28 @@ const MQTTClient = () => {
   const [data, setData] = useState([]);
   const [pin, setPin] = useState("0000");
 
-  const brokerUrl = "wss://test.mosquitto.org:8081/mqtt";
   const topic = "laatikko/1";
 
+  const host = "test.mosquitto.org";
+  const isSecure = window.location.protocol === "https:";
+  const port = isSecure ? 8081 : 8080;
+  const protocol = isSecure ? "wss" : "ws";
+  const brokerUrl = `${protocol}://${host}:${port}/mqtt`;
+
   useEffect(() => {
-    const mqttClient = mqtt.connect(brokerUrl);
+    const mqttClient = mqtt.connect(brokerUrl, {
+      connectTimeout: 4000,
+      reconnectPeriod: 1000,
+      keepalive: 30,
+      clientId: "web_" + Math.random().toString(16).substr(2, 8),
+    });
 
     mqttClient.on("connect", () => {
-      console.log("Connected to broker");
+      console.log("Connected to broker", brokerUrl);
       setIsConnected(true);
-      mqttClient.subscribe(topic);
+      mqttClient.subscribe(topic, (err) => {
+        if (err) console.error("Subscribe error:", err);
+      });
     });
 
     mqttClient.on("message", (topic, message) => {
@@ -124,7 +136,22 @@ const MQTTClient = () => {
 
     mqttClient.on("error", (err) => {
       console.error("Connection error: ", err);
-      mqttClient.end();
+      setIsConnected(false);
+    });
+
+    mqttClient.on("reconnect", () => {
+      console.log("Attempting to reconnect...");
+      setIsConnected(false);
+    });
+
+    mqttClient.on("close", () => {
+      console.log("Connection closed");
+      setIsConnected(false);
+    });
+
+    mqttClient.on("offline", () => {
+      console.log("Client went offline");
+      setIsConnected(false);
     });
 
     setClient(mqttClient);
@@ -145,8 +172,8 @@ const MQTTClient = () => {
     });
   };
 
-  const sendMessage = () => {
-    event.preventDefault();
+  const sendMessage = (e) => {
+    e.preventDefault();
     if (client && input) {
       client.publish(topic, input);
       setInput("");
