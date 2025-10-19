@@ -84,6 +84,19 @@ const AppInterface = ({
     );
 };
 
+const HOST = "cf3512443e394008bfa45c85edf2e1d5.s1.eu.hivemq.cloud";
+const WSS_PORT = 8884;
+const CONNECT_URL = `wss://${HOST}:${WSS_PORT}/mqtt`;
+
+const options = {
+  username: "testi",
+  password: "Salasana123",
+  clientId: "react_client_" + Math.random().toString(16).substring(2, 8),
+  clean: true,
+  connectTimeout: 4000,
+  reconnectPeriod: 1000,
+};
+
 const MQTTClient = () => {
   const [client, setClient] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -93,23 +106,16 @@ const MQTTClient = () => {
   const [boxInUse, setBoxInUse] = useState(false);
   const [data, setData] = useState([]);
   const [pin, setPin] = useState("0000");
-  const [lastError, setLastError] = useState("");
 
   const topic = "laatikko/1";
-
-  const host = "test.mosquitto.org";
+  const host = "cf3512443e394008bfa45c85edf2e1d5.s1.eu.hivemq.cloud";
   const isSecure = window.location.protocol === "https:";
-  const port = isSecure ? 8081 : 8080;
+  const port = isSecure ? 8884 : 8884;
   const protocol = isSecure ? "wss" : "ws";
-  const brokerUrl = `${protocol}://${host}:${port}/mqtt`;
+  const brokerUrl = `${protocol}://${host}:${port}`;
 
   useEffect(() => {
-    const mqttClient = mqtt.connect(brokerUrl, {
-      connectTimeout: 4000,
-      reconnectPeriod: 1000,
-      keepalive: 30,
-      clientId: "web_" + Math.random().toString(16).substr(2, 8),
-    });
+    const mqttClient = mqtt.connect(CONNECT_URL, options);
 
     mqttClient.on("connect", () => {
       console.log("Connected to broker", brokerUrl);
@@ -138,11 +144,10 @@ const MQTTClient = () => {
     mqttClient.on("error", (err) => {
       console.error("Connection error: ", err);
       setIsConnected(false);
-      setLastError(err?.message || err?.toString() || "Unknown error");
     });
 
     mqttClient.on("reconnect", () => {
-      console.log("Attempting to reconnect...");
+      console.log("Reconnecting...");
       setIsConnected(false);
     });
 
@@ -187,29 +192,14 @@ const MQTTClient = () => {
       {/* <BoxSimulator boxInUse={boxInUse} doorIsClosed={doorIsClosed} /> */}
 
       <h2>MQTT test</h2>
-      <div
-        style={{
-          background: "#eee",
-          padding: "0.5em",
-          marginBottom: "1em",
-          border: "1px solid #ccc",
-        }}
-      >
-        <strong>Broker URL:</strong> {brokerUrl}
-        <br />
-        <strong>Status:</strong>{" "}
-        {isConnected ? "Connection successful :)" : "Connection failed ;("}
-        {lastError && (
-          <>
-            <br />
-            <strong>Last error:</strong>{" "}
-            <span style={{ color: "red" }}>{lastError}</span>
-          </>
-        )}
-      </div>
+      <p>Host: test.mosquitto.org, port: 8081</p>
       <h4>MQTT Komennot:</h4>
       <p>"close" = simuloi oven sulkemista</p>
       <p>"open" = simuloi oven avaamista</p>
+      <p>
+        Status:{" "}
+        {isConnected ? "Connection successful :)" : "Connection failed ;("}
+      </p>
       <div>
         <form onSubmit={sendMessage}>
           <input
