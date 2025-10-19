@@ -7,6 +7,8 @@ const MQTTDebugger = ({ isConnected, sendMessage, host, port, messages }) => {
       <h2>MQTT test</h2>
       <p>Host: {host}</p>
       <p>Port: {port}</p>
+      <p>Auth username: testi</p>
+      <p>Auth password: Salasana123</p>
       <h4>MQTT Komennot:</h4>
       <p>"close" = simuloi oven sulkemista</p>
       <p>"open" = simuloi oven avaamista</p>
