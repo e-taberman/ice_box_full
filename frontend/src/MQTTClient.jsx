@@ -174,7 +174,7 @@ const AppInterface = ({
   else
     return (
       <div style={{ ...styles.container, marginTop: "20px" }}>
-        <h2 style={styles.header}>Smart Box</h2>
+        <h2 style={styles.header}>Ice Box</h2>
         {showPin ? (
           <div style={{ ...styles.alert, ...styles.successAlert }}>
             <p style={styles.message}>Box has been locked!</p>
