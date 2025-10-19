@@ -119,6 +119,7 @@ const AppInterface = ({
     if (pinAttempt == pin) {
       console.log("Correct pin!");
       setBoxInUse(false);
+      setShowPin(false);
       dataService.updateData({ boxInUse: false });
       if (client) client.publish(topic, "0");
     } else {
