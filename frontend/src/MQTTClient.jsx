@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from "react";
 import mqtt from "mqtt";
 import dataService from "./services/data";
-
-const BoxSimulator = ({ boxInUse, doorIsClosed }) => {
-  return (
-    <div style={{ border: "5px solid black" }}>
-      <h2>BoxSimulator</h2>
-      <p>Is in use: {boxInUse.toString()}</p>
-      <p>Door is closed: {doorIsClosed.toString()}</p>
-    </div>
-  );
-};
+import MQTTDebugger from "./components/MQTTDebugger";
 
 const AppInterface = ({
   boxInUse,
@@ -21,8 +12,92 @@ const AppInterface = ({
   setDoorIsClosed,
   topic,
   client,
+  data,
 }) => {
   const [showPin, setShowPin] = useState(false);
+
+  const styles = {
+    container: {
+      maxWidth: "600px",
+      margin: "0 auto",
+      padding: "20px",
+      borderRadius: "12px",
+      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
+      transition: "all 0.3s ease",
+      background: "#1a2b4c",
+      color: "#ffffff",
+      textAlign: "center",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+    },
+    header: {
+      fontSize: "1.8rem",
+      marginBottom: "1.5rem",
+      color: "#ffffff",
+      fontWeight: "600",
+    },
+    message: {
+      fontSize: "1.1rem",
+      marginBottom: "1.5rem",
+      color: "#e0e6f0",
+    },
+    form: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "1rem",
+      alignItems: "center",
+    },
+    input: {
+      padding: "12px 20px",
+      fontSize: "1rem",
+      borderRadius: "8px",
+      border: "2px solid #2d4166",
+      background: "#ffffff",
+      width: "100%",
+      maxWidth: "300px",
+      transition: "all 0.2s ease",
+      outline: "none",
+    },
+    button: {
+      padding: "12px 24px",
+      fontSize: "1rem",
+      borderRadius: "8px",
+      border: "none",
+      background: "#4a90e2",
+      color: "#ffffff",
+      cursor: "pointer",
+      transition: "all 0.2s ease",
+      fontWeight: "500",
+      transform: "scale(1)",
+      "&:hover": {
+        background: "#357abd",
+      },
+      "&:active": {
+        transform: "scale(0.98)",
+      },
+    },
+    alert: {
+      padding: "1rem",
+      borderRadius: "8px",
+      marginBottom: "1rem",
+      fontWeight: "500",
+    },
+    successAlert: {
+      background: "rgba(72, 187, 120, 0.1)",
+      border: "2px solid #48bb78",
+      color: "#48bb78",
+    },
+    errorAlert: {
+      background: "rgba(245, 101, 101, 0.1)",
+      border: "2px solid #f56565",
+      color: "#f56565",
+    },
+    pin: {
+      fontSize: "2rem",
+      fontWeight: "bold",
+      color: "#4a90e2",
+      margin: "1rem 0",
+    },
+  };
 
   const generatePinCode = () => {
     return Math.floor(1000 + Math.random() * 9000);
@@ -37,7 +112,7 @@ const AppInterface = ({
     if (client) client.publish(topic, "1");
   };
 
-  const openBox = () => {
+  const openBox = (event) => {
     event.preventDefault();
     var pinInput = document.getElementById("pinInput");
     var pinAttempt = pinInput.value;
@@ -52,33 +127,74 @@ const AppInterface = ({
     pinInput.value = "";
   };
 
+  if (Array.isArray(data) && data.length === 0)
+    return (
+      <div style={{ ...styles.container, marginTop: "20px" }}>
+        <div style={styles.message}>
+          <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⌛</div>
+          Loading...
+        </div>
+      </div>
+    );
+
   if (!doorIsClosed)
     return (
-      <div style={{ border: "5px solid red" }}>Close the box door first.</div>
+      <div
+        style={{ ...styles.container, ...styles.errorAlert, marginTop: "20px" }}
+      >
+        <h2 style={styles.header}>Box Status</h2>
+        <p style={styles.message}>
+          ⚠️ Box is open. Please close the door before continuing.
+        </p>
+      </div>
     );
 
   if (boxInUse)
     return (
-      <div style={{ border: "5px solid red" }}>
-        <h2>AppInterface</h2>
-        <p>BOX IS CURRENTLY IN USE</p>
-        <form onSubmit={openBox}>
-          <input type="text" placeholder="PIN code" id="pinInput"></input>
-          <button type="submit">Open box</button>
+      <div style={{ ...styles.container, marginTop: "20px" }}>
+        <h2 style={styles.header}>Ice Box</h2>
+        <div style={{ ...styles.alert, ...styles.errorAlert }}>
+          <p>Box is currently in use and locked!</p>
+        </div>
+        <form onSubmit={openBox} style={styles.form}>
+          <input
+            type="text"
+            placeholder="Enter PIN code"
+            id="pinInput"
+            style={styles.input}
+            maxLength="4"
+          />
+          <button type="submit" style={styles.button}>
+            Unlock Box
+          </button>
         </form>
       </div>
     );
   else
     return (
-      <div style={{ border: "5px solid green" }}>
-        <h2>AppInterface</h2>
+      <div style={{ ...styles.container, marginTop: "20px" }}>
+        <h2 style={styles.header}>Smart Box</h2>
         {showPin ? (
-          <p>Box locked! PIN code for opening the box: {pin}</p>
+          <div style={{ ...styles.alert, ...styles.successAlert }}>
+            <p style={styles.message}>Box has been locked!</p>
+            <p style={styles.message}>Your PIN code is:</p>
+            <div style={styles.pin}>{pin}</div>
+            <button
+              onClick={() => setBoxInUse((prev) => !prev)}
+              style={styles.button}
+            >
+              Done
+            </button>
+          </div>
         ) : (
-          <>
-            <p>BOX IS FREE!</p>
-            <button onClick={reserveBox}>Reserve box</button>
-          </>
+          <div>
+            <div style={{ ...styles.alert, ...styles.successAlert }}>
+              <p style={styles.message}>✅ Box is available!</p>
+            </div>
+            <button onClick={reserveBox} style={styles.button}>
+              Reserve Box
+            </button>
+          </div>
         )}
       </div>
     );
@@ -101,11 +217,11 @@ const MQTTClient = () => {
   const [client, setClient] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
   const [doorIsClosed, setDoorIsClosed] = useState(false);
   const [boxInUse, setBoxInUse] = useState(false);
   const [data, setData] = useState([]);
   const [pin, setPin] = useState("0000");
+  const [showDebug, setShowDebug] = useState(true);
 
   const topic = "laatikko/1";
   const host = "cf3512443e394008bfa45c85edf2e1d5.s1.eu.hivemq.cloud";
@@ -179,7 +295,7 @@ const MQTTClient = () => {
     });
   };
 
-  const sendMessage = (e) => {
+  const sendMessage = (e, input, setInput) => {
     e.preventDefault();
     if (client && input) {
       client.publish(topic, input);
@@ -188,40 +304,38 @@ const MQTTClient = () => {
   };
 
   return (
-    <div>
-      {/* <BoxSimulator boxInUse={boxInUse} doorIsClosed={doorIsClosed} /> */}
+    <div
+      style={{
+        backgroundColor: "#0b172e",
+        minHeight: "100vh",
+        padding: "20px",
+        color: "#ffffff",
+      }}
+    >
+      <button
+        onClick={() => setShowDebug((prev) => !prev)}
+        style={{
+          background: "#1a2b4c",
+          color: "#ffffff",
+          border: "none",
+          padding: "8px 16px",
+          borderRadius: "6px",
+          cursor: "pointer",
+          marginBottom: "20px",
+        }}
+      >
+        Hide/show debug
+      </button>
+      {showDebug ? (
+        <MQTTDebugger
+          isConnected={isConnected}
+          sendMessage={sendMessage}
+          host={host}
+          port={port}
+          messages={messages}
+        />
+      ) : null}
 
-      <h2>MQTT test</h2>
-      <p>Host: test.mosquitto.org, port: 8081</p>
-      <h4>MQTT Komennot:</h4>
-      <p>"close" = simuloi oven sulkemista</p>
-      <p>"open" = simuloi oven avaamista</p>
-      <p>
-        Status:{" "}
-        {isConnected ? "Connection successful :)" : "Connection failed ;("}
-      </p>
-      <div>
-        <form onSubmit={sendMessage}>
-          <input
-            type="text"
-            value={input}
-            placeholder="Message"
-            onChange={(e) => setInput(e.target.value)}
-          />
-          <button type="submit">Send</button>
-        </form>
-      </div>
-      <div>
-        <h3>Messages</h3>
-        <ul>
-          {messages
-            .slice()
-            .reverse()
-            .map((msg, i) => (
-              <li key={i}>{msg}</li>
-            ))}
-        </ul>
-      </div>
       <AppInterface
         boxInUse={boxInUse}
         doorIsClosed={doorIsClosed}
@@ -231,6 +345,7 @@ const MQTTClient = () => {
         setDoorIsClosed={setDoorIsClosed}
         topic={topic}
         client={client}
+        data={data}
       />
     </div>
   );
