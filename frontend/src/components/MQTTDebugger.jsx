@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 const MQTTDebugger = ({ isConnected, sendMessage, host, port, messages }) => {
-  const [input, setInput] = useState(null);
+  const [input, setInput] = useState("");
   return (
     <div>
       <h2>MQTT test</h2>

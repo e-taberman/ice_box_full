@@ -13,6 +13,7 @@ const AppInterface = ({
   topic,
   client,
   data,
+  isConnected
 }) => {
   const [showPin, setShowPin] = useState(false);
 
@@ -128,7 +129,7 @@ const AppInterface = ({
     pinInput.value = "";
   };
 
-  if (Array.isArray(data) && data.length === 0)
+  if (Array.isArray(data) && data.length === 0 && !isConnected)
     return (
       <div style={{ ...styles.container, marginTop: "20px" }}>
         <div style={styles.message}>
@@ -218,7 +219,7 @@ const MQTTClient = () => {
   const [client, setClient] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [doorIsClosed, setDoorIsClosed] = useState(false);
+  const [doorIsClosed, setDoorIsClosed] = useState(true);
   const [boxInUse, setBoxInUse] = useState(false);
   const [data, setData] = useState([]);
   const [pin, setPin] = useState("0000");
@@ -290,7 +291,8 @@ const MQTTClient = () => {
   const fetchData = async () => {
     dataService.getAll().then((response) => {
       setData(response);
-      setDoorIsClosed(response.doorIsClosed);
+      // setDoorIsClosed(response.doorIsClosed);
+      setDoorIsClosed(true)
       setBoxInUse(response.boxInUse);
       setPin(response.pinCode);
     });
@@ -313,7 +315,7 @@ const MQTTClient = () => {
         color: "#ffffff",
       }}
     >
-      <button
+      {/* <button
         onClick={() => setShowDebug((prev) => !prev)}
         style={{
           background: "#1a2b4c",
@@ -335,7 +337,7 @@ const MQTTClient = () => {
           port={port}
           messages={messages}
         />
-      ) : null}
+      ) : null} */}
 
       <AppInterface
         boxInUse={boxInUse}
@@ -347,6 +349,7 @@ const MQTTClient = () => {
         topic={topic}
         client={client}
         data={data}
+        isConnected={isConnected}
       />
     </div>
   );
