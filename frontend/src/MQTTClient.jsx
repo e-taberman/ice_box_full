@@ -232,7 +232,7 @@ const MQTTClient = () => {
   const brokerUrl = `${protocol}://${host}:${port}`;
 
   useEffect(() => {
-    const mqttClient = mqtt.connect(CONNECT_URL, options);
+    const mqttClient = mqtt.connect('wss://broker.hivemq.com:8884/mqtt');
 
     mqttClient.on("connect", () => {
       console.log("Connected to broker", brokerUrl);
