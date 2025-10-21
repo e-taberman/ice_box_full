@@ -238,7 +238,10 @@ const MQTTClient = () => {
   const isSecure = window.location.protocol === "https:";
   const protocol = isSecure ? "wss" : "ws";
   const port = isSecure ? 8081: 8080;
-  const brokerUrl = `${protocol}://${host}:${port}`;
+  // const brokerUrl = `${protocol}://${host}:${port}`;
+
+  const brokerUrl = "wss://test.mosquitto.org:8081/mqtt";
+  // const client = mqtt.connect(brokerUrl);
   
 
   useEffect(() => {
