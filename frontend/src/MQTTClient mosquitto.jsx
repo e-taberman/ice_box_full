@@ -109,7 +109,7 @@ const AppInterface = ({
     setShowPin(true);
     dataService.updateData({ pinCode: newPin.toString() });
     dataService.updateData({ boxInUse: true });
-    if (client) client.publish(topic, "1");
+    if (client) client.publish(topic, "0");
   };
 
   const openBox = (event) => {
@@ -121,7 +121,7 @@ const AppInterface = ({
       setBoxInUse(false);
       setShowPin(false);
       dataService.updateData({ boxInUse: false });
-      if (client) client.publish(topic, "0");
+      if (client) client.publish(topic, "1");
     } else {
       console.log("Incorrect pin!");
     }
@@ -201,18 +201,21 @@ const AppInterface = ({
     );
 };
 
-const HOST = "cf3512443e394008bfa45c85edf2e1d5.s1.eu.hivemq.cloud";
-const WSS_PORT = 8884;
-const CONNECT_URL = `wss://${HOST}:${WSS_PORT}/mqtt`;
+// const HOST = "cf3512443e394008bfa45c85edf2e1d5.s1.eu.hivemq.cloud";
+// const WSS_PORT = 8884;
+// const CONNECT_URL = `wss://${HOST}:${WSS_PORT}/mqtt`;
 
-const options = {
-  username: "testi",
-  password: "Salasana123",
-  clientId: "react_client_" + Math.random().toString(16).substring(2, 8),
-  clean: true,
-  connectTimeout: 4000,
-  reconnectPeriod: 1000,
-};
+
+
+
+// const options = {
+//   username: "testi",
+//   password: "Salasana123",
+//   clientId: "react_client_" + Math.random().toString(16).substring(2, 8),
+//   clean: true,
+//   connectTimeout: 4000,
+//   reconnectPeriod: 1000,
+// };
 
 const MQTTClient = () => {
   const [client, setClient] = useState(null);
@@ -225,15 +228,24 @@ const MQTTClient = () => {
   const [showDebug, setShowDebug] = useState(true);
 
   const topic = "laatikko/1";
-  const host = "cf3512443e394008bfa45c85edf2e1d5.s1.eu.hivemq.cloud";
+  // const host = "cf3512443e394008bfa45c85edf2e1d5.s1.eu.hivemq.cloud";
+  // const isSecure = window.location.protocol === "https:";
+  // const port = isSecure ? 8884 : 8884;
+  // const protocol = isSecure ? "wss" : "ws";
+  // const brokerUrl = `${protocol}://${host}:${port}`;
+
+  const host = "test.mosquitto.org";
   const isSecure = window.location.protocol === "https:";
-  const port = isSecure ? 8884 : 8884;
   const protocol = isSecure ? "wss" : "ws";
-  const brokerUrl = `${protocol}://${host}:${port}`;
+  const port = isSecure ? 8081: 8080;
+  // const brokerUrl = `${protocol}://${host}:${port}`;
+
+  const brokerUrl = "wss://test.mosquitto.org:8081/mqtt";
+  // const client = mqtt.connect(brokerUrl);
+  
 
   useEffect(() => {
-    const mqttClient = mqtt.connect(CONNECT_URL, options);
-
+    const mqttClient = mqtt.connect(brokerUrl);
     mqttClient.on("connect", () => {
       console.log("Connected to broker", brokerUrl);
       setIsConnected(true);
