@@ -313,7 +313,7 @@ const MQTTClient = () => {
         color: "#ffffff",
       }}
     >
-      <button
+      {/* <button
         onClick={() => setShowDebug((prev) => !prev)}
         style={{
           background: "#1a2b4c",
@@ -335,7 +335,7 @@ const MQTTClient = () => {
           port={port}
           messages={messages}
         />
-      ) : null}
+      ) : null} */}
 
       <AppInterface
         boxInUse={boxInUse}
