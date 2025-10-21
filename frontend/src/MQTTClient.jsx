@@ -237,7 +237,7 @@ const MQTTClient = () => {
   const host = "test.mosquitto.org";
   const isSecure = window.location.protocol === "https:";
   const protocol = isSecure ? "wss" : "ws";
-  const port = isSecure ? 8080: 8080;
+  const port = isSecure ? 8081: 8080;
   const brokerUrl = `${protocol}://${host}:${port}`;
   
 
