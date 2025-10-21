@@ -109,7 +109,7 @@ const AppInterface = ({
     setShowPin(true);
     dataService.updateData({ pinCode: newPin.toString() });
     dataService.updateData({ boxInUse: true });
-    if (client) client.publish(topic, "1");
+    if (client) client.publish(topic, "0");
   };
 
   const openBox = (event) => {
@@ -121,7 +121,7 @@ const AppInterface = ({
       setBoxInUse(false);
       setShowPin(false);
       dataService.updateData({ boxInUse: false });
-      if (client) client.publish(topic, "0");
+      if (client) client.publish(topic, "1");
     } else {
       console.log("Incorrect pin!");
     }
